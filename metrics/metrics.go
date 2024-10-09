@@ -115,6 +115,7 @@ var (
 	TiKVPipelinedFlushLenHistogram           prometheus.Histogram
 	TiKVPipelinedFlushSizeHistogram          prometheus.Histogram
 	TiKVPipelinedFlushDuration               prometheus.Histogram
+	TiKVLastTSUpdateErrorCounter             *prometheus.CounterVec
 )
 
 // Label constants.
@@ -834,6 +835,15 @@ func initMetrics(namespace, subsystem string, constLabels prometheus.Labels) {
 			Buckets:   prometheus.ExponentialBuckets(0.0005, 2, 28), // 0.5ms ~ 18h
 		})
 
+	TiKVLastTSUpdateErrorCounter = prometheus.NewCounterVec(
+		prometheus.CounterOpts{
+			Namespace:   namespace,
+			Subsystem:   subsystem,
+			Name:        "lastts_update_error_counter",
+			Help:        "Error while updating lastTS.",
+			ConstLabels: constLabels,
+		}, []string{LblScope})
+
 	initShortcuts()
 }
 
@@ -928,6 +938,7 @@ func RegisterMetrics() {
 	prometheus.MustRegister(TiKVPipelinedFlushLenHistogram)
 	prometheus.MustRegister(TiKVPipelinedFlushSizeHistogram)
 	prometheus.MustRegister(TiKVPipelinedFlushDuration)
+	prometheus.MustRegister(TiKVLastTSUpdateErrorCounter)
 }
 
 // readCounter reads the value of a prometheus.Counter.

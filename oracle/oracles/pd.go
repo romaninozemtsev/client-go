@@ -253,6 +253,7 @@ func (o *pdOracle) updateTS(ctx context.Context) {
 				txnScope := key.(string)
 				ts, err := o.getTimestamp(ctx, txnScope)
 				if err != nil {
+					metrics.TiKVLastTSUpdateErrorCounter.WithLabelValues(txnScope).Inc()
 					logutil.Logger(ctx).Error("updateTS error", zap.String("txnScope", txnScope), zap.Error(err))
 					return true
 				}
